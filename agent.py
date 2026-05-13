@@ -1,7 +1,13 @@
-# while loop;
+from google import genai
+from dotenv import load_dotenv
+import os
 
-print("hello world")
+load_dotenv()
 
-print("we are in development")
+# The client gets the API key from the environment variable `GEMINI_API_KEY`.
+client = genai.Client()
 
-print("We are in the git demo feature branch")
+response = client.models.generate_content(
+    model="gemini-3-flash-preview", contents="explain in a few words what the optimal diet is?"
+)
+print(response.text)
