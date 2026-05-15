@@ -3,8 +3,11 @@
 
 import os
 import requests
+import logging
 from typing import List, Dict, Any
 from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
 from tools.city.city_tool_config import (
     DEFAULT_COUNTRY_LIMIT,
     CITY_TYPE,
@@ -88,6 +91,8 @@ def get_top_cities(country_code: str) -> Dict[str, Any]:
             "message": f"Invalid country code '{country_code}'. Please provide a 2-letter ISO code (e.g., 'US', 'GB')."
         }
 
+    logger.info(f"Fetching top cities for country: {country_code}")
+
     try:
         data = fetch_cities_from_api(country_code)
         cities = parse_city_data(data)
@@ -97,21 +102,25 @@ def get_top_cities(country_code: str) -> Dict[str, Any]:
         }
     except requests.exceptions.HTTPError as e:
         status_code = e.response.status_code if e.response is not None else "Unknown"
+        logger.error(f"GeoDb API failure for {country_code}: {e}")
         return {
             "status": "error",
             "message": f"API request failed with status code {status_code}."
         }
-    except requests.exceptions.RequestException:
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Network error for {country_code}: {e}")
         return {
             "status": "error",
             "message": "Network error: Unable to reach the city information service."
         }
     except ValueError as e:
+        logger.error(f"Configuration error for {country_code}: {e}")
         return {
             "status": "error",
             "message": str(e)
         }
     except Exception as e:
+        logger.error(f"Unexpected error for {country_code}: {e}")
         return {
             "status": "error",
             "message": f"An unexpected error occurred: {str(e)}"

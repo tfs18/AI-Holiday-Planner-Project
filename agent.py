@@ -20,3 +20,7 @@ response = client.models.generate_content(
     model="gemini-3-flash-preview", contents="explain in a few words what the optimal diet is?"
 )
 print(response.text)
+
+from tools.city.city_tool import get_top_cities
+
+print(get_top_cities("US"))
