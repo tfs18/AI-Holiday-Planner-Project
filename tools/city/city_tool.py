@@ -3,9 +3,9 @@
 
 import os
 import requests
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any
 from dotenv import load_dotenv
-from city_tool_config import (
+from tools.city.city_tool_config import (
     DEFAULT_COUNTRY_LIMIT,
     CITY_TYPE,
     SORTING_METHOD,
