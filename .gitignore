@@ -10,3 +10,4 @@ env.bak/
 venv.bak/
 gemini.md
 __pycache__
+app.log
