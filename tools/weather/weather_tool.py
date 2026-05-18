@@ -1,17 +1,9 @@
-import json
-import os
 from typing import Any, Dict
 import requests
 import logging
-from dotenv import load_dotenv
+import tools.weather.weather_tool_config
 
 logger = logging.getLogger(__name__)
-
-from tools.weather.weather_tool_config import (
-    WEATHER_API_BASE_URL,
-    WEATHER_DAILY_PARAMS,
-    WEATHER_TIMEZONE,
-)
 
 def get_weather_forecast(city: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -37,10 +29,10 @@ def get_weather_forecast(city: Dict[str, Any]) -> Dict[str, Any]:
         }
 
     url = (
-        f"{WEATHER_API_BASE_URL}"
+        f"{tools.weather.weather_tool_config.WEATHER_API_BASE_URL}"
         f"?latitude={lat}&longitude={lon}"
-        f"&daily={WEATHER_DAILY_PARAMS}"
-        f"&timezone={WEATHER_TIMEZONE}"
+        f"&daily={tools.weather.weather_tool_config.WEATHER_DAILY_PARAMS}"
+        f"&timezone={tools.weather.weather_tool_config.WEATHER_TIMEZONE}"
     )
 
     try:
