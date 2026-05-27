@@ -6,6 +6,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 from tools.calendar.calendar_tool_config import (
     SCOPES,
@@ -35,7 +36,15 @@ def get_calendar_service():
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             logger.info("Refreshing expired credentials")
-            creds.refresh(Request())
+            
+            try:
+                creds.refresh(Request())
+            except Exception as e:
+                logger.warning(f"Token refresh failed ({e}), re-authenticating from scratch")
+                logger.info("No valid credentials found, starting OAuth flow")
+                flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_PATH, SCOPES)
+                creds = flow.run_local_server(port=0)
+
         else:
             logger.info("No valid credentials found, starting OAuth flow")
             flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_PATH, SCOPES)
@@ -142,8 +151,84 @@ def create_holiday_event(destination: str, start_date: str, end_date: str, notes
             "status": "error",
             "message": f"Bad Request: {str(e)}"
         }
+    except HttpError as e:
+        status_code = e.resp.status
+        if status_code == 400:
+            logger.error(f"Bad Request to Google Calendar API: {e}")
+            return {
+                "status": "error",
+                "message": f"Bad Request: The API rejected the event data. {str(e)}"
+            }
+        elif status_code == 401:
+            logger.error(f"Authentication failed: {e}")
+            return {
+                "status": "error",
+                "message": "Unauthorized: Please check your calendar credentials."
+            }
+        else:
+            logger.error(f"Google Calendar API error ({status_code}): {e}")
+            return {
+                "status": "error",
+                "message": f"API Error ({status_code}): {str(e)}"
+            }
     except Exception as e:
         logger.error(f"Failed to create holiday event: {e}")
+        return {
+            "status": "error",
+            "message": f"An unexpected error occurred: {str(e)}"
+        }
+
+
+def delete_calendar_event(event_id: str):
+    """
+    Deletes a specified event from the Google Calendar.
+
+    Args:
+        event_id: The ID of the event to delete.
+
+    Returns:
+        A dict indicating the status of the deletion.
+    """
+    logger.info(f"Deleting calendar event with ID: {event_id}")
+
+    try:
+        # 1. Authenticate and get the service
+        service = get_calendar_service()
+
+        # 2. Delete the event from the primary calendar
+        service.events().delete(
+            calendarId="primary",
+            eventId=event_id
+        ).execute()
+
+        logger.info(f"Event {event_id} deleted successfully.")
+
+        return {
+            "status": "success",
+            "message": f"Event {event_id} deleted successfully."
+        }
+    except HttpError as e:
+        status_code = e.resp.status
+        if status_code == 404:
+            logger.error(f"Event {event_id} not found: {e}")
+            return {
+                "status": "error",
+                "message": f"Not Found: Event {event_id} does not exist."
+            }
+        elif status_code == 401:
+            logger.error(f"Authentication failed: {e}")
+            return {
+                "status": "error",
+                "message": "Unauthorized: Please check your calendar credentials."
+            }
+        else:
+            logger.error(f"Google Calendar API error ({status_code}): {e}")
+            return {
+                "status": "error",
+                "message": f"API Error ({status_code}): {str(e)}"
+            }
+    except Exception as e:
+        logger.error(f"Failed to delete calendar event {event_id}: {e}")
         return {
             "status": "error",
             "message": f"An unexpected error occurred: {str(e)}"
