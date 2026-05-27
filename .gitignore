@@ -11,3 +11,5 @@ venv.bak/
 gemini.md
 __pycache__
 app.log
+authorisation/credentials.json
+token.json
