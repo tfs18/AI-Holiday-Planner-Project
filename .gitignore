@@ -13,3 +13,4 @@ __pycache__
 app.log
 authorisation/credentials.json
 token.json
+.pytest_cache
