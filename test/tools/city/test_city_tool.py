@@ -88,7 +88,8 @@ def test_parse_city_data_success():
 def test_parse_city_data_empty():
     """Test parsing empty or malformed responses."""
     assert parse_city_data({"data": []}) == []
-    assert parse_city_data({}) == []
+    with pytest.raises(ValueError, match="'data' field is missing"):
+        parse_city_data({})
 
 def test_parse_city_data_missing_fields():
     """Test parsing response items with missing fields."""
@@ -97,8 +98,32 @@ def test_parse_city_data_missing_fields():
             {"city": "London"} # missing lat/long
         ]
     }
-    expected = [{"name": "London", "latitude": None, "longitude": None}]
-    assert parse_city_data(api_data) == expected
+    with pytest.raises(ValueError, match="missing required information"):
+        parse_city_data(api_data)
+
+def test_parse_city_data_invalid_types():
+    """Test parsing with invalid data types."""
+    # Top level not a dict
+    with pytest.raises(ValueError, match="expected a dictionary"):
+        parse_city_data("not a dict")
+    
+    # 'data' field not a list
+    with pytest.raises(ValueError, match="'data' field is not a list"):
+        parse_city_data({"data": "not a list"})
+    
+    # City entry not a dict
+    with pytest.raises(ValueError, match="expected a dictionary"):
+        parse_city_data({"data": [None]})
+
+def test_parse_city_data_null_fields():
+    """Test parsing with null values for required fields."""
+    api_data = {
+        "data": [
+            {"city": "London", "latitude": None, "longitude": -0.1278}
+        ]
+    }
+    with pytest.raises(ValueError, match="missing required information"):
+        parse_city_data(api_data)
 
 # --- Tests for get_top_cities ---
 
