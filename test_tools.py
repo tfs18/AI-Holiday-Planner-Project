@@ -1,6 +1,7 @@
-# test_tools.py
-import json
-from tools.weather.weather_tool import get_forecasts_for_country
+from logs.logging_config import setup_logging
+setup_logging()
+
+from tools.weather.weather_tool import get_forecasts_for_country, pretty_print_forecasts
 
 result = get_forecasts_for_country("GB")
-print(json.dumps(result, indent=4))
+pretty_print_forecasts(result)

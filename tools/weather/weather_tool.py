@@ -186,6 +186,7 @@ def get_forecasts_for_country(country_code: str) -> Dict[str, Any]:
         "data": results
     }
 
+# CAN BE REMOVED - pretty print output for dev purposes
 def pretty_print_forecasts(result: Dict[str, Any]) -> None:
     """
     Pretty prints the forecast results to stdout for development purposes.
