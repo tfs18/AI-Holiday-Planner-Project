@@ -61,13 +61,38 @@ def parse_city_data(api_data: Dict[str, Any]) -> List[Dict[str, Any]]:
         
     Returns:
         A list of dictionaries with 'name', 'latitude', and 'longitude'.
+
+    Raises:
+        ValueError: If the input format is invalid or required fields are missing.
     """
+    if not isinstance(api_data, dict):
+        raise ValueError("Invalid API response format: expected a dictionary.")
+
+    data_list = api_data.get("data")
+    if data_list is None:
+        raise ValueError("Invalid API response format: 'data' field is missing.")
+    if not isinstance(data_list, list):
+        raise ValueError("Invalid API response format: 'data' field is not a list.")
+
     cities = []
-    for city in api_data.get("data", []):
+    for city in data_list:
+        if not isinstance(city, dict):
+            raise ValueError("Invalid city entry: expected a dictionary.")
+        
+        name = city.get("city")
+        lat = city.get("latitude")
+        lon = city.get("longitude")
+
+        if name is None or lat is None or lon is None:
+            raise ValueError(
+                f"City entry is missing required information: "
+                f"city={name}, latitude={lat}, longitude={lon}"
+            )
+
         cities.append({
-            "name": city.get("city"),
-            "latitude": city.get("latitude"),
-            "longitude": city.get("longitude")
+            "name": name,
+            "latitude": lat,
+            "longitude": lon
         })
     return cities
 
