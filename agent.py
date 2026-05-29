@@ -28,3 +28,20 @@ logger.info("App started")
 # # print(holiday_event)
 # #print(delete_calendar_event(holiday_event["data"]["event_id"]))
 # print(delete_calendar_event('fe0d0dmvqfp4b3o2q8irrus4t8'))
+
+# def main():
+#     history = []  # this accumulates the entire conversation
+
+#     while True:
+#         user_input = input("You: ").strip()
+
+#         if not user_input:
+#             continue
+#         if user_input.lower() in ("exit", "quit", "q"):
+#             print("Goodbye!")
+#             break
+
+#         response = run_agent(user_input, history)
+#         # history is mutated inside run_agent, so it grows each turn
+
+#         print(f"\nAgent: {response}\n")
