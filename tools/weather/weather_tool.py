@@ -152,40 +152,6 @@ def get_weather_forecast(city: Dict[str, Any]) -> Dict[str, Any]:
             "message": f"An unexpected error occurred: {str(e)}"
         }
 
-
-def get_forecasts_for_country(country_code: str) -> Dict[str, Any]:
-    """
-    Fetches weather forecasts for all top cities in a country.
-
-    Args:
-        country_code: ISO 3166-1 alpha-2 country code (e.g., 'GB', 'US').
-
-    Returns:
-        A dictionary containing:
-        - status: "success" or "error"
-        - data: List of forecast dictionaries (if success)
-        - message: Error description (if error)
-    """
-
-    logger.info(f"Fetching forecasts for country: {country_code}")
-
-    cities = get_top_cities(country_code)
-    if cities["status"] == "error":
-        return cities
-
-    results = []
-    for city in cities["data"]:
-        forecast = get_weather_forecast(city)
-        if forecast["status"] == "error":
-            logger.warning(f"Skipping {city['name']}: {forecast['message']}")
-            continue
-        results.append(forecast["data"])
-
-    return {
-        "status": "success",
-        "data": results
-    }
-
 # CAN BE REMOVED - pretty print output for dev purposes
 def pretty_print_forecasts(result: Dict[str, Any]) -> None:
     """
