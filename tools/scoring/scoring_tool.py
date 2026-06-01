@@ -10,17 +10,22 @@ logger = logging.getLogger(__name__)
 # INDIVIDUAL FACTOR SCORES (0-100)
 # =========================================================
 
-def score_temperature(temp_max: float) -> float:
-    """Higher score = warmer day."""
+def score_temperature(temp_max: float, temp_min: float) -> float:
+    """Higher score = warmer day (weighted by max and min temps)."""
+    
+    temp = 0.7 * temp_max + 0.3 * temp_min
+
     thresholds = [
         (28, 100), (27, 95), (26, 90), (25, 85), (24, 80),
         (23, 75),  (22, 70), (21, 65), (20, 60), (19, 55),
         (18, 50),  (17, 45), (16, 40), (15, 35), (14, 30),
         (13, 25),  (12, 20), (11, 15), (10, 10), (9, 5), (8, 3),
     ]
+
     for threshold, score in thresholds:
-        if temp_max >= threshold:
+        if temp >= threshold:
             return score
+
     return 0
 
 
@@ -110,7 +115,7 @@ def score_day(
 ) -> Dict[str, Any]:
     weights = config.PREFERENCE_WEIGHTS[preference]
 
-    temp_score = score_temperature(temp_max)
+    temp_score = score_temperature(temp_max, temp_min)
     rain_score = score_rain(rain_sum, precip_prob)
     snow_score = score_snow(snowfall_sum)
     wind_score = score_wind(wind_speed)
