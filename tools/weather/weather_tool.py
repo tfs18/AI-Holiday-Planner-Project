@@ -1,9 +1,7 @@
-from typing import Any, Dict, List
+from typing import Any, Dict
 import requests
 import logging
-import json
 import tools.weather.weather_tool_config
-from tools.city.city_tool import get_top_cities
 
 logger = logging.getLogger(__name__)
 
@@ -151,30 +149,3 @@ def get_weather_forecast(city: Dict[str, Any]) -> Dict[str, Any]:
             "status": "error",
             "message": f"An unexpected error occurred: {str(e)}"
         }
-
-# CAN BE REMOVED - pretty print output for dev purposes
-def pretty_print_forecasts(result: Dict[str, Any]) -> None:
-    """
-    Pretty prints the forecast results to stdout for development purposes.
-
-    Args:
-        result: The dictionary returned by get_forecasts_for_country.
-    """
-    if result["status"] == "error":
-        print(f"Error: {result['message']}")
-        return
-
-    for city_forecast in result["data"]:
-        print(f"\n{'='*40}")
-        print(f"  {city_forecast['city']}")
-        print(f"{'='*40}")
-        for day in city_forecast["forecast"]:
-            print(f"  {day['date']}")
-            print(f"    Max temp:      {day['temp_max']}°C")
-            print(f"    Min temp:      {day['temp_min']}°C")
-            print(f"    Weather Code:  {day['weather_code']}")
-            print(f"    Rain:          {day['rain_sum']}mm")
-            print(f"    Snowfall:      {day['snowfall_sum']}cm")
-            print(f"    Wind:          {day['wind_speed_max']}km/h")
-            print(f"    Precip Prob:   {day['precipitation_probability_max']}%")
-            print()
