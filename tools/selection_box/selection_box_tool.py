@@ -5,8 +5,8 @@ def selection_box_tool(holidays_list: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
     Presents holiday destinations to the user via a CLI selection box and returns the choice.
 
-    The holidays_list parameter should be a list of dictionaries with the following keys:
-    - 'ranking': int or str (e.g., 1)
+    The holidays_list parameter should be a list of dictionaries ordered by their score,
+    with the following keys:
     - 'city': str (e.g., 'Paris')
     - 'date': str (e.g., '2026-06-15')
     - 'weather': str (e.g., 'Sunny')
