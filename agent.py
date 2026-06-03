@@ -45,3 +45,11 @@ logger.info("App started")
 #         # history is mutated inside run_agent, so it grows each turn
 
 #         print(f"\nAgent: {response}\n")
+
+
+from tools.selection_box.selection_box_tool import selection_box_tool
+
+selection_box_tool([
+    {"city":"Spain", "date": "03-06-2025", "score": 25},
+    {"city":"Argentina", "date": "07-06-2025", "score": 50},
+])
