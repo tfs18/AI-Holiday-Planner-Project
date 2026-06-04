@@ -45,7 +45,7 @@ def print_scored_forecast(rank_result, city_name):
 # RUN TEST FLOW
 # -------------------
 
-cities = get_top_cities("ES")
+cities = get_top_cities("GB")
 print_cities(cities)
 
 if cities["status"] == "success" and cities["data"]:

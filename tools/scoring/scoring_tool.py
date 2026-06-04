@@ -1,7 +1,5 @@
 import logging
 from typing import Any, Dict, List
-# from tools.city.city_tool import get_top_cities
-# from tools.weather.weather_tool import get_weather_forecast
 from tools.scoring import scoring_tool_config as config
 
 logger = logging.getLogger(__name__)
@@ -28,40 +26,19 @@ def score_temperature(temp_max: float, temp_min: float) -> float:
 
     return 0
 
-
 def score_rain(rain_sum: float, precip_prob: int) -> float:
-    """Higher score = more rain."""
-    base = (precip_prob * 0.6) + (rain_sum * 8)
-    return min(100, base)
+    rain_component = rain_sum * 7
+    prob_component = precip_prob * 0.3
 
+    return min(100, rain_component + prob_component)
 
 def score_snow(snowfall_sum: float) -> float:
     """Higher score = more snow."""
-    if snowfall_sum >= 10:  return 100
-    if snowfall_sum >= 5:   return 75
-    if snowfall_sum >= 2:   return 50
-    if snowfall_sum >= 0.5: return 25
-    return 0
-
+    return min(100, (snowfall_sum / 20) * 100)
 
 def score_wind(wind_speed: float) -> float:
     """Higher score = more wind."""
-    if wind_speed > 40: return 100
-    if wind_speed > 30: return 75
-    if wind_speed > 20: return 50
-    if wind_speed > 10: return 25
-    return 0
-
-
-# def score_sunshine(weather_code: int) -> float:
-#     """Higher score = sunnier day."""
-#     if weather_code in config.WMO_CLEAR:           base = 100
-#     elif weather_code in config.WMO_PARTLY_CLOUDY: base = 60
-#     elif weather_code in config.WMO_RAIN:          base = 20
-#     elif weather_code in config.WMO_STORM:         base = 0
-#     else:                                          base = 40
-#     return min(100, base)
-
+    return min(100, (wind_speed / 60) * 100)
 
 # =========================================================
 # VALIDATION
@@ -97,7 +74,6 @@ def validate_forecast_fields(day: Dict[str, Any]) -> None:
     if missing:
         raise ValueError(f"Forecast day is missing required fields: {missing}")
 
-
 # =========================================================
 # COMBINED SCORER
 # =========================================================
@@ -117,8 +93,8 @@ def score_day(
 
     temp_score = score_temperature(temp_max, temp_min)
     rain_score = score_rain(rain_sum, precip_prob)
-    snow_score = score_snow(snowfall_sum)
-    wind_score = score_wind(wind_speed)
+    snow_score = min(100, snowfall_sum * 5)      # 20cm = 100
+    wind_score = min(100, wind_speed * 1.67)     # 60km/h = 100
 
     total = (
         temp_score * weights["temperature"] +
@@ -152,7 +128,6 @@ def score_day(
             "wind_speed":   wind_speed,
         }
     }
-
 
 # =========================================================
 # RANK ALL DAYS
@@ -219,78 +194,3 @@ def rank_days(forecast_days: List[Dict[str, Any]], preference: str) -> Dict[str,
 #             "ranked_days": days
 #         }
 #     }
-
-
-# =========================================================
-# RANK FOR A COUNTRY - OUT OF SCOPE, too many actions being performed in one tool, should have tool separation
-# =========================================================
-
-# def rank_days_for_country(country_code: str, preference: str) -> Dict[str, Any]:
-#     """
-#     Fetches cities and forecasts for a country and ranks each city's days.
-
-#     Args:
-#         country_code: ISO 3166-1 alpha-2 country code (e.g., 'GB', 'US').
-#         preference: Scoring profile key from PREFERENCE_WEIGHTS.
-
-#     Returns:
-#         A dictionary containing:
-#         - status: "success" or "error"
-#         - data: List of {city, ranked_days} dicts (if success)
-#         - message: Error description (if error)
-#     """
-#     if not validate_preference(preference):
-#         return {
-#             "status": "error",
-#             "message": f"Unknown preference '{preference}'. Valid options: {list(config.PREFERENCE_WEIGHTS.keys())}"
-#         }
-
-#     logger.info(f"Ranking days for country: {country_code}, preference: {preference}")
-
-#     cities = get_top_cities(country_code)
-#     if cities["status"] == "error":
-#         return cities
-
-#     results = []
-#     for city in cities["data"]:
-#         forecast = get_weather_forecast(city)
-#         if forecast["status"] == "error":
-#             logger.warning(f"Skipping {city['name']}: {forecast['message']}")
-#             continue
-
-#         ranked = rank_days(forecast["data"]["forecast"], preference)
-#         if ranked["status"] == "error":
-#             logger.warning(f"Skipping {city['name']}: {ranked['message']}")
-#             continue
-
-#         results.append({
-#             "city": city["name"],
-#             "ranked_days": ranked["data"]
-#         })
-
-#     return {
-#         "status": "success",
-#         "data": results
-#     }
-
-
-# =========================================================
-# PRETTY PRINT
-# =========================================================
-
-def pretty_print_rankings(result: Dict[str, Any]) -> None:
-    if result["status"] == "error":
-        print(f"Error: {result['message']}")
-        return
-
-    for city_result in result["data"]:
-        print(f"\n{'='*50}")
-        print(f"  {city_result['city']}")
-        print(f"{'='*50}")
-        for day in city_result["ranked_days"]:
-            print(f"  {day['date']} | score: {day['score']:>4} | {day['description']}")
-            print(f"    Temp (score: {day['factor_scores']['temperature']}):    {day['data']['temp_min']}°C - {day['data']['temp_max']}°C")
-            print(f"    Rain (score: {day['factor_scores']['rain']}):    {day['data']['rain_sum']}mm, {day['data']['precip_prob']}%")
-            print(f"    Snow (score: {day['factor_scores']['snow']}):    {day['data']['snowfall_sum']}cm")
-            print(f"    Wind (score: {day['factor_scores']['wind']}):    {day['data']['wind_speed']}km/h")
-            print()
