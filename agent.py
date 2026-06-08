@@ -3,15 +3,16 @@ from dotenv import load_dotenv
 import os
 from logs.logging_config import setup_logging
 import logging
+from functions.cli_loop import cli_loop
 
 load_dotenv()
 
-setup_logging()
+# setup_logging()
 
-#This is how to get the right logging instance.
-logger = logging.getLogger("holiday-agent")
+# #This is how to get the right logging instance.
+# logger = logging.getLogger("holiday-agent")
 
-logger.info("App started")
+# logger.info("App started")
 
 # # The client gets the API key from the environment variable `GEMINI_API_KEY`.
 # client = genai.Client()
@@ -20,6 +21,13 @@ logger.info("App started")
 #     model="gemini-3-flash-preview", contents="explain in a few words what the optimal diet is?"
 # )
 # print(response.text)
+
+# print("hello")
+def main():
+    cli_loop()
+    print("hit")
+
+main()
 
 # from tools.calendar.calendar_tool import *
 

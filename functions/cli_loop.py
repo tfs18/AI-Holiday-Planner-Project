@@ -7,6 +7,7 @@ def cli_loop():
     It repeatedly prompts the user for input and passes it to the agent_loop.
     """
     session = PromptSession()
+    history = []
     
     print("Welcome to the Holiday Planner! (Type 'exit' or 'quit' to leave)")
     
@@ -21,7 +22,7 @@ def cli_loop():
                 print("Goodbye!")
                 break
             
-            response = agent_loop(user_input)
+            response = agent_loop(user_input, history)
             if response is not None:
                 print(response)
             
