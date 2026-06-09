@@ -91,34 +91,31 @@ def parse_weather_data(api_data: Dict[str, Any], city_name: str) -> Dict[str, An
     }
 
 # Function to take coordinates from city tool and use them to get weather forecast
-def get_weather_forecast(city: Dict[str, Any]) -> Dict[str, Any]:
+def get_weather_forecast(name: str, latitude: float, longitude: float) -> Dict[str, Any]:
     """
     Fetches and parses a daily forecast for a single city for up to 7 days.
-
+   
     Args:
         city: A city dictionary with 'name', 'latitude', and 'longitude'
               as returned by parse_city_data.
-
+   
     Returns:
         A dictionary containing:
         - status: "success" or "error"
         - data: Parsed forecast dictionary (if success)
         - message: Error description (if error)
     """
-    name = city.get("name", "unknown")
-    lat = city.get("latitude")
-    lon = city.get("longitude")
 
-    if lat is None or lon is None:
+    if latitude is None or longitude is None:
         return {
             "status": "error",
             "message": f"Missing coordinates for city '{name}'."
-        }
+       }
 
     logger.info(f"Fetching weather forecast for city: {name}")
 
     try:
-        api_data = fetch_weather_from_api(lat, lon)
+        api_data = fetch_weather_from_api(latitude, longitude)
         forecast = parse_weather_data(api_data, name)
         return {
             "status": "success",
