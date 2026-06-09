@@ -51,6 +51,8 @@ print_cities(cities)
 if cities["status"] == "success" and cities["data"]:
     city = cities["data"][0]
 
+    print(city)
+
     forecast = get_weather_forecast(city)
 
     if forecast["status"] == "success":
