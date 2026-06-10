@@ -34,6 +34,11 @@ def extract_preference(user_input: str) -> str:
     valid = {"warm", "sunny", "cold", "rainy", "windy", "snowy", "balanced"}
     return preference if preference in valid else "balanced"
 
+# A placeholder so the SDK can resolve the rank_days name in history
+# without the model being able to invoke it as a real tool
+def rank_days_placeholder(forecast_days: list[dict], preference: str) -> dict:
+    """Internal scoring tool — not called by the agent."""
+    pass
 def agent_loop(user_input: str, history: list) -> str:
     """
     Main agent loop that handles user input, model generation, 
@@ -47,7 +52,7 @@ def agent_loop(user_input: str, history: list) -> str:
         types.Content(role="user", parts=[types.Part(text=user_input)])
     )
 
-    tools = [get_top_cities, create_holiday_event, delete_calendar_event, get_weather_forecast]
+    tools = [get_top_cities, create_holiday_event, delete_calendar_event, get_weather_forecast, rank_days_placeholder]
 
     # Flat list of forecast day dicts across all cities
     all_forecasts: list = []  
@@ -59,7 +64,9 @@ def agent_loop(user_input: str, history: list) -> str:
             contents=history,
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM_INSTRUCTION,
-                tools=tools
+                tools=tools,
+                # managing tool dispatch manually in the loop, the SDK's automatic function calling consuming the response and returning an empty result. Disabling it gives you full control back.
+                automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True)
             )
         )
 
@@ -90,9 +97,15 @@ def agent_loop(user_input: str, history: list) -> str:
                 result = get_weather_forecast(**call.args)
                 # extracts the forecast days from the weather tools response and adds them to all_forecasts
                 if isinstance(result, dict) and result.get("status") == "success":
-                    days = result.get("data", {}).get("forecast", []) 
+                    days = result.get("data", {}).get("forecast", [])
+                    city_name = result.get("data", {}).get("city", "unknown")
+                    for day in days:
+                        day["city"] = city_name  # tag each day with its city before extending
                     all_forecasts.extend(days)
                     print(f"\033[96m[Forecasts Collected]:\033[0m {len(all_forecasts)} days total so far")
+            # SDK still tries to call rank_days - so need a dummy version here
+            elif call.name == "rank_days_placeholder":
+                result = {"status": "error", "message": "This tool is not available."}
             elif call.name == "create_holiday_event":
                 result = create_holiday_event(**call.args)
             elif call.name == "delete_calendar_event":
