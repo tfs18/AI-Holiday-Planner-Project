@@ -1,6 +1,6 @@
 import logging
 from typing import Any, Dict, List
-from tools.scoring import scoring_tool_config as config
+from functions.scoring import scoring_config as config
 
 logger = logging.getLogger(__name__)
 

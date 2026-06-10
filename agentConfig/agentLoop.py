@@ -4,7 +4,7 @@ import os
 from tools.city.city_tool import get_top_cities
 from tools.calendar.calendar_tool import create_holiday_event, delete_calendar_event
 from tools.weather.weather_tool import get_weather_forecast
-from tools.scoring.scoring_tool import rank_days
+from functions.scoring.scoring import rank_days
 
 from agentConfig.sysInstructions import SYSTEM_INSTRUCTION
 
@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-MODEL = "gemini-2.5-flash-lite"
+MODEL = "gemini-2.5-flash"
 
 # uses the model to handle preference synonyms etc
 # system instructions need to be more detailed - just a placeholder for now

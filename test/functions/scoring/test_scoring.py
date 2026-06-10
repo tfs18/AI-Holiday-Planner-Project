@@ -1,6 +1,6 @@
 import pytest
 
-from tools.scoring.scoring_tool import (
+from functions.scoring.scoring import (
     score_temperature,
     score_rain,
     score_snow,
