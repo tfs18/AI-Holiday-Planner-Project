@@ -45,20 +45,33 @@ def print_scored_forecast(rank_result, city_name):
 # RUN TEST FLOW
 # -------------------
 
-cities = get_top_cities("GB")
-print_cities(cities)
+# cities = get_top_cities("GB")
+# print_cities(cities)
 
-if cities["status"] == "success" and cities["data"]:
-    city = cities["data"][0]
+# if cities["status"] == "success" and cities["data"]:
+#     city = cities["data"][0]
 
-    print(city)
+#     print(city)
 
-    forecast = get_weather_forecast(city)
+#     forecast = get_weather_forecast(city)
 
-    if forecast["status"] == "success":
-        ranked = rank_days(
-            forecast["data"]["forecast"],
-            preference="warm"   # change this as needed
-        )
+#     if forecast["status"] == "success":
+#         ranked = rank_days(
+#             forecast["data"]["forecast"],
+#             preference="warm"   # change this as needed
+#         )
 
-        print_scored_forecast(ranked, city["name"])
+#         print_scored_forecast(ranked, city["name"])
+
+from agentConfig.agentLoop import agent_loop
+
+history = []
+response = agent_loop("I want to go to the UK when it is rainy", history)
+# After the loop returns, in main.py
+for i, content in enumerate(history):
+    for part in content.parts:
+        if hasattr(part, "function_response") and part.function_response is not None:
+            if part.function_response.name == "rank_days":
+                print(f"\033[92m[History Check]:\033[0m rank_days found at history[{i}]")
+                print(part.function_response.response)
+print(response)

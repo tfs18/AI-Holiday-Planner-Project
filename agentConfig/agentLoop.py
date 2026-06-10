@@ -11,8 +11,16 @@ from agentConfig.sysInstructions import SYSTEM_INSTRUCTION
 from dotenv import load_dotenv
 load_dotenv()
 
+#TODO!
+#Add validation of call.args, using inspect module, maybe pydantic model
+#Test tool map when ted fixes his side of the code. 
+
+
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-MODEL = "gemini-2.5-flash-lite"
+MODEL = "gemini-2.5-flash"
+tools = [get_top_cities, create_holiday_event, delete_calendar_event, get_weather_forecast, rank_days]
+tool_map = {tool.__name__: tool for tool in tools}
+MAX_TURNS = 20
 
 def agent_loop(user_input: str, history: list) -> str:
     """
@@ -24,9 +32,7 @@ def agent_loop(user_input: str, history: list) -> str:
         types.Content(role="user", parts=[types.Part(text=user_input)])
     )
 
-    tools = [get_top_cities, create_holiday_event, delete_calendar_event, get_weather_forecast, rank_days]
-
-    while True:
+    for i in range(MAX_TURNS):
         # 2. Generate content using the full conversation history
         response = client.models.generate_content(
             model=MODEL,
@@ -56,7 +62,18 @@ def agent_loop(user_input: str, history: list) -> str:
         for call in function_calls:
             print(f"\033[93m[Action]:\033[0m Calling {call.name} with {call.args}...")
             
-            # Dispatch to the correct tool function
+            # # Dispatch to the correct tool function
+            # try:
+            #     if call.name in tool_map:
+            #         print(tool_map[call.name])
+            #         result = tool_map[call.name](**call.args)
+            #     else:
+            #         result = f"Error: Tool {call.name} not found."
+
+            #     print(f"  └─ Result: {result}")
+            # except TypeError as e: 
+            #     result = f"Invalid arguments for {call.name}: {e}"
+
             if call.name == "get_top_cities":
                 result = get_top_cities(**call.args)
             elif call.name == "get_weather_forecast":
@@ -81,3 +98,17 @@ def agent_loop(user_input: str, history: list) -> str:
         history.append(types.Content(role="user", parts=tool_responses))
         
         # The loop continues back to step 2 to let the model react to the tool results
+
+    # Final else loop to send final summarising prompt if max turns is reached
+    else:
+        print("Warning: reached the maximum number of turns without breaking")
+        final_response = client.models.generate_content(
+            model=MODEL,
+            contents=history + [types.Content(
+                role="user",
+                parts=[types.Part(text="You've reached the maximum number of steps. Please summarise what you've done and what you found so far.")]
+            )],
+            config=types.GenerateContentConfig(system_instruction=SYSTEM_INSTRUCTION)
+            # Note: no tools passed here, so model is forced to respond in text
+        )
+        return final_response.text
