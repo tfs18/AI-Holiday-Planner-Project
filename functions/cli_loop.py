@@ -1,5 +1,6 @@
 from prompt_toolkit import PromptSession
 from agentConfig.agentLoop import agent_loop
+import traceback
 
 def cli_loop():
     """
@@ -33,3 +34,4 @@ def cli_loop():
             break
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
+            traceback.print_exc()
