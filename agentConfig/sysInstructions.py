@@ -31,5 +31,8 @@ SYSTEM_INSTRUCTION = (
     "- You MUST call `get_top_cities` before answering ANY question about destinations or weather.\n"
     "- You MUST call `get_weather_forecast` after getting cities — NEVER use your own knowledge for weather data.\n"
     "- NEVER guess or infer weather conditions. All weather data must come from tool results.\n"
+    "- When you receive a get_weather_forecast result, it contains a `ranking` field with "
+    "the top 3 scored days. You MUST base your recommendations on these scores, not on raw "
+    "temperatures. Always cite the city, date, and score in your response.\n"
     "- If you have not called the tools yet, do not respond with any destination or weather information.\n\n"
 )
