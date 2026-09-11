@@ -25,7 +25,7 @@ def build_weather_url(lat: float, lon: float) -> str:
     )
 
 # Function to call the api
-def fetch_weather_from_api(lat: float, lon: float) -> Dict[str, Any]:
+def fetch_weather_from_api(city_name: str, lat: float, lon: float) -> Dict[str, Any]:
     """
     Internal function to handle the API request to the weather service.
 
@@ -42,7 +42,11 @@ def fetch_weather_from_api(lat: float, lon: float) -> Dict[str, Any]:
     url = build_weather_url(lat, lon)
     response = requests.get(url, timeout=5)
     response.raise_for_status()
-    return response.json()
+
+    data = response.json()
+    data['city'] = city_name
+
+    return data
 
 # Function to parse the data from the api call - selects required data fields
 def parse_weather_data(api_data: Dict[str, Any], city_name: str) -> Dict[str, Any]:
@@ -115,7 +119,7 @@ def get_weather_forecast(name: str, latitude: float, longitude: float) -> Dict[s
     logger.info(f"Fetching weather forecast for city: {name}")
 
     try:
-        api_data = fetch_weather_from_api(latitude, longitude)
+        api_data = fetch_weather_from_api(name, latitude, longitude)
         forecast = parse_weather_data(api_data, name)
         return {
             "status": "success",

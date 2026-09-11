@@ -7,27 +7,31 @@ from tools.scoring.scoring_tool import rank_days
 from tools.selection_box.selection_box_tool import selection_box_tool
 from tools.calendar.calendar_tool import create_holiday_event
 
-city1 = get_top_cities('GB')["data"][0]
-forecast1 = get_weather_forecast(city1['name'], city1['latitude'], city1['longitude'])['data']['forecast']
-ranked_days = rank_days(forecast1, 'warm')['data'][0:3]
+from tools.workflow.workflow_tool import call_workflow
 
-choices = []
-for day in ranked_days:
-    choices.append({
-        'city': city1['name'],
-        'date': day['date'],
-        'weather': day['description'],
-        'score': day['score']
-    })
-#print(choices)
-result = selection_box_tool(choices)['data']
+call_workflow('GB', 'warm')
 
-create_holiday_event(
-    destination= result['city'],
-    start_date= result['date'],
-    end_date= '2026-09-13',
-    notes= "Test run"
-)
+# city1 = get_top_cities('GB')["data"][0]
+# forecast1 = get_weather_forecast(city1['name'], city1['latitude'], city1['longitude'])['data']['forecast']
+# ranked_days = rank_days(forecast1, 'warm')['data'][0:3]
+
+# choices = []
+# for day in ranked_days:
+#     choices.append({
+#         'city': city1['name'],
+#         'date': day['date'],
+#         'weather': day['description'],
+#         'score': day['score']
+#     })
+# #print(choices)
+# result = selection_box_tool(choices)['data']
+
+# create_holiday_event(
+#     destination= result['city'],
+#     start_date= result['date'],
+#     end_date= '2026-09-13',
+#     notes= "Test run"
+# )
 
 def print_cities(cities_result):
     print("\n🌍 TOP CITIES")

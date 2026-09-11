@@ -158,7 +158,7 @@ def rank_days(forecast_days: List[Dict[str, Any]], preference: str) -> Dict[str,
                 weather_code=day_data["weather_code"],
                 preference=preference,
             )
-
+            day['city'] = day_data['city']   # carry city through into the scored dict
             scored.append(day)
 
     except ValueError as e:
