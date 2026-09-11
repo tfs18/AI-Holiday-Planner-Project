@@ -4,7 +4,30 @@ setup_logging()
 from tools.city.city_tool import get_top_cities
 from tools.weather.weather_tool import get_weather_forecast
 from tools.scoring.scoring_tool import rank_days
+from tools.selection_box.selection_box_tool import selection_box_tool
+from tools.calendar.calendar_tool import create_holiday_event
 
+city1 = get_top_cities('GB')["data"][0]
+forecast1 = get_weather_forecast(city1['name'], city1['latitude'], city1['longitude'])['data']['forecast']
+ranked_days = rank_days(forecast1, 'warm')['data'][0:3]
+
+choices = []
+for day in ranked_days:
+    choices.append({
+        'city': city1['name'],
+        'date': day['date'],
+        'weather': day['description'],
+        'score': day['score']
+    })
+#print(choices)
+result = selection_box_tool(choices)['data']
+
+create_holiday_event(
+    destination= result['city'],
+    start_date= result['date'],
+    end_date= '2026-09-13',
+    notes= "Test run"
+)
 
 def print_cities(cities_result):
     print("\n🌍 TOP CITIES")
@@ -65,13 +88,13 @@ def print_scored_forecast(rank_result, city_name):
 
 from agentConfig.agentLoop import agent_loop
 
-history = []
-response = agent_loop("I want to go to the UK when it is rainy", history)
-# After the loop returns, in main.py
-for i, content in enumerate(history):
-    for part in content.parts:
-        if hasattr(part, "function_response") and part.function_response is not None:
-            if part.function_response.name == "rank_days":
-                print(f"\033[92m[History Check]:\033[0m rank_days found at history[{i}]")
-                print(part.function_response.response)
-print(response)
+# history = []
+# response = agent_loop("I want to go to the UK when it is rainy", history)
+# # After the loop returns, in main.py
+# for i, content in enumerate(history):
+#     for part in content.parts:
+#         if hasattr(part, "function_response") and part.function_response is not None:
+#             if part.function_response.name == "rank_days":
+#                 print(f"\033[92m[History Check]:\033[0m rank_days found at history[{i}]")
+#                 print(part.function_response.response)
+# print(response)
