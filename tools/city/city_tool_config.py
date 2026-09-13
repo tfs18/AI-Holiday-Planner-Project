@@ -1,4 +1,4 @@
-DEFAULT_COUNTRY_LIMIT = 2
+DEFAULT_COUNTRY_LIMIT = 5
 CITY_TYPE = "CITY"
 SORTING_METHOD = "-population"
 API_URL = "https://wft-geo-db.p.rapidapi.com/v1/geo/cities"
