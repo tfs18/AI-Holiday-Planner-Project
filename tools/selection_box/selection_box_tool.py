@@ -68,14 +68,14 @@ def selection_box_tool(holidays_list: List[Dict[str, Any]]) -> Dict[str, Any]:
 
         # Handle cancellation (User picked "None" option)
         if selected_holiday is None:
-            print("Selection cancelled.")
+            #print("Selection cancelled.")
             return {
                 "status": "failure",
                 "message": "user cancelled operation"
             }
 
         # Success case
-        print(f"You have chosen: {selected_holiday.get('city', 'Unknown')}")
+        #print(f"You have chosen: {selected_holiday.get('city', 'Unknown')}")
         return {
             "status": "success",
             "data": selected_holiday
@@ -83,7 +83,7 @@ def selection_box_tool(holidays_list: List[Dict[str, Any]]) -> Dict[str, Any]:
 
     except (KeyboardInterrupt, EOFError):
         # Handle Ctrl+C or Ctrl+D gracefully
-        print("\nSelection aborted.")
+        #print("\nSelection aborted.")
         return {
             "status": "failure",
             "message": "user aborted selection (Ctrl+C/Ctrl+D)"

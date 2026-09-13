@@ -1,5 +1,5 @@
 from prompt_toolkit import PromptSession
-from agentConfig.agentLoop import agent_loop
+from agentConfig.Loop import agent_turn
 
 def cli_loop():
     """
@@ -7,7 +7,6 @@ def cli_loop():
     It repeatedly prompts the user for input and passes it to the agent_loop.
     """
     session = PromptSession()
-    history = []
     
     print("Welcome to the Holiday Planner! (Type 'exit' or 'quit' to leave)")
     
@@ -22,7 +21,7 @@ def cli_loop():
                 print("Goodbye!")
                 break
             
-            response = agent_loop(user_input, history)
+            response = agent_turn(user_input)
             if response is not None:
                 print(response)
             
