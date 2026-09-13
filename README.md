@@ -3,6 +3,9 @@
 A CLI tool for people planning holidays to use. Users can input a prompt specifying details about their ideal holiday, and the tool will identify the best times and locations. The user can then choose the destination they want to go to, and the tool will book out the holiday in their calendar.
 
 ## Video
+https://github.com/user-attachments/assets/acf8b148-5378-49d8-b7fe-f0742fa98a04
+
+
 
 ## Technologies
 
