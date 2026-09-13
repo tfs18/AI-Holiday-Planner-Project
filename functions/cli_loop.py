@@ -1,5 +1,5 @@
 from prompt_toolkit import PromptSession
-from agentConfig.agentLoop import agent_loop
+from agentConfig.Loop import agent_turn
 
 def cli_loop():
     """
@@ -21,7 +21,7 @@ def cli_loop():
                 print("Goodbye!")
                 break
             
-            response = agent_loop(user_input)
+            response = agent_turn(user_input)
             if response is not None:
                 print(response)
             

@@ -133,7 +133,6 @@ def score_day(
 # =========================================================
 
 def rank_days(forecast_days: List[Dict[str, Any]], preference: str) -> Dict[str, Any]:
-
     if not validate_preference(preference):
         return {
             "status": "error",
@@ -144,7 +143,6 @@ def rank_days(forecast_days: List[Dict[str, Any]], preference: str) -> Dict[str,
 
     try:
         for day_data in forecast_days:
-
             validate_forecast_fields(day_data)
 
             day = score_day(
@@ -158,14 +156,11 @@ def rank_days(forecast_days: List[Dict[str, Any]], preference: str) -> Dict[str,
                 weather_code=day_data["weather_code"],
                 preference=preference,
             )
-
+            day['city'] = day_data['city']   # carry city through into the scored dict
             scored.append(day)
 
     except ValueError as e:
-        return {
-            "status": "error",
-            "message": str(e)
-        }
+        return {"status": "error", "message": str(e)}
 
     return {
         "status": "success",

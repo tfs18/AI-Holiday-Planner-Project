@@ -25,7 +25,7 @@ def build_weather_url(lat: float, lon: float) -> str:
     )
 
 # Function to call the api
-def fetch_weather_from_api(lat: float, lon: float) -> Dict[str, Any]:
+def fetch_weather_from_api(city_name: str, lat: float, lon: float) -> Dict[str, Any]:
     """
     Internal function to handle the API request to the weather service.
 
@@ -42,7 +42,11 @@ def fetch_weather_from_api(lat: float, lon: float) -> Dict[str, Any]:
     url = build_weather_url(lat, lon)
     response = requests.get(url, timeout=5)
     response.raise_for_status()
-    return response.json()
+
+    data = response.json()
+    data['city'] = city_name
+
+    return data
 
 # Function to parse the data from the api call - selects required data fields
 def parse_weather_data(api_data: Dict[str, Any], city_name: str) -> Dict[str, Any]:
@@ -91,34 +95,88 @@ def parse_weather_data(api_data: Dict[str, Any], city_name: str) -> Dict[str, An
     }
 
 # Function to take coordinates from city tool and use them to get weather forecast
-def get_weather_forecast(city: Dict[str, Any]) -> Dict[str, Any]:
+# def get_weather_forecast(name: str, latitude: float, longitude: float) -> Dict[str, Any]:
+#     """
+#     Fetches and parses a daily forecast for a single city for up to 7 days.
+   
+#     Args:
+#         city: A city dictionary with 'name', 'latitude', and 'longitude'
+#               as returned by parse_city_data.
+   
+#     Returns:
+#         A dictionary containing:
+#         - status: "success" or "error"
+#         - data: Parsed forecast dictionary (if success)
+#         - message: Error description (if error)
+#     """
+
+#     if latitude is None or longitude is None:
+#         return {
+#             "status": "error",
+#             "message": f"Missing coordinates for city '{name}'."
+#        }
+
+#     logger.info(f"Fetching weather forecast for city: {name}")
+
+#     try:
+#         api_data = fetch_weather_from_api(latitude, longitude)
+#         forecast = parse_weather_data(api_data, name)
+#         return {
+#             "status": "success",
+#             "data": forecast
+#         }
+#     except requests.exceptions.HTTPError as e:
+#         status_code = e.response.status_code if e.response is not None else "Unknown"
+#         logger.error(f"Weather API failure for {name}: {e}")
+#         return {
+#             "status": "error",
+#             "message": f"Weather API request failed with status code {status_code}."
+#         }
+#     except requests.exceptions.RequestException as e:
+#         logger.error(f"Network error for {name}: {e}")
+#         return {
+#             "status": "error",
+#             "message": "Network error: Unable to reach the weather service."
+#         }
+#     except ValueError as e:
+#         logger.error(f"Parsing error for {name}: {e}")
+#         return {
+#             "status": "error",
+#             "message": str(e)
+#         }
+#     except Exception as e:
+#         logger.error(f"Unexpected error for {name}: {e}")
+#         return {
+#             "status": "error",
+#             "message": f"An unexpected error occurred: {str(e)}"
+#         }
+    
+def get_weather_forecast(cities: list[dict]) -> Dict[str, Any]:
     """
-    Fetches and parses a daily forecast for a single city for up to 7 days.
+    Fetches and parses daily forecasts for a list of cities.
 
     Args:
-        city: A city dictionary with 'name', 'latitude', and 'longitude'
-              as returned by parse_city_data.
+        cities: List of city dicts with 'name', 'latitude', and 'longitude'
+                as returned by get_top_cities.
 
     Returns:
         A dictionary containing:
         - status: "success" or "error"
-        - data: Parsed forecast dictionary (if success)
-        - message: Error description (if error)
+        - data: List of forecast dicts (if success)
+        - errors: List of any partial failures
+        - message: Error description (if total failure)
     """
-    name = city.get("name", "unknown")
-    lat = city.get("latitude")
-    lon = city.get("longitude")
 
-    if lat is None or lon is None:
+    if latitude is None or longitude is None:
         return {
             "status": "error",
             "message": f"Missing coordinates for city '{name}'."
-        }
+       }
 
     logger.info(f"Fetching weather forecast for city: {name}")
 
     try:
-        api_data = fetch_weather_from_api(lat, lon)
+        api_data = fetch_weather_from_api(name, latitude, longitude)
         forecast = parse_weather_data(api_data, name)
         return {
             "status": "success",
